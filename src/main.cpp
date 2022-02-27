@@ -17,7 +17,7 @@ __itt_string_handle* handle_opt = __itt_string_handle_create("Optimal");
 using FPType = float;
 
 int main() {
-	tbb::task_arena arena(1);
+	tbb::task_arena arena;
 	arena.execute([]{
 		mkl_set_num_threads(1);
 		Meta meta {
@@ -39,7 +39,7 @@ int main() {
 		verbose_print(verbosity, "# Start no optimal solution: forward");
 		auto result_forward = logreg_noopt::forward<FPType>(meta, data, weights, groundTruth, beta, verbosity);
 		verbose_print(verbosity, "# Start no optimal solution: backward");
-		//auto result_gradient = logreg_noopt::gradient<FPType>(meta, data, weights, groundTruth, beta, result_forward, verbosity);
+		auto result_gradient = logreg_noopt::gradient<FPType>(meta, data, weights, groundTruth, beta, result_forward, verbosity);
 		__itt_task_end(domain);
 
 		verbose_print(verbosity, "# Finished!");
