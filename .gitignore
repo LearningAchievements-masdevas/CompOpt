@@ -1,1 +1,3 @@
 exec
+*.log
+*.dat

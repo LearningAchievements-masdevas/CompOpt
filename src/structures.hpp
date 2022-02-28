@@ -7,16 +7,16 @@ template <typename FPType>
 struct ForwardResult {
 	ForwardResult(size_t size) : sigm(size), logloss(0.) {}
 
-	std::vector<FPType> sigm;
-	FPType logloss;
+	std::vector<FPType> sigm{};
+	FPType logloss = 0;
 };
 
 template <typename FPType>
 struct GradientResult {
 	GradientResult(size_t size) : weights_gradient(size), beta_gradient(0.) {}
 
-	std::vector<FPType> weights_gradient;
-	FPType beta_gradient;
+	std::vector<FPType> weights_gradient{};
+	FPType beta_gradient = 0;
 };
 
 struct Meta {
