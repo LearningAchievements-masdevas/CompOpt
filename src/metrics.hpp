@@ -28,7 +28,7 @@ bool check_forward_equality(const ForwardResult<FPType>& lhs, const ForwardResul
 
 template <typename FPType>
 bool check_gradient_equality(const GradientResult<FPType>& lhs, const GradientResult<FPType>& rhs) {
-	constexpr double eps = 0.5;
+	constexpr double eps = 1;
 	return check_containers_eq(lhs.weights_gradient, rhs.weights_gradient, eps) && (std::abs(lhs.beta_gradient - rhs.beta_gradient) < eps);
 }
 

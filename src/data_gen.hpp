@@ -9,7 +9,7 @@
 
 template <typename FPType>
 std::tuple<std::vector<FPType>, std::vector<FPType>, FPType, std::vector<FPType>> generate_data(const Meta& meta, const char* filename) {
-	std::vector<FPType> data, weights(meta.columns_count), groundTruth(meta.rows_count);
+	std::vector<FPType> data(meta.rows_count * meta.columns_count), weights(meta.columns_count), groundTruth(meta.rows_count);
 	FPType beta;
 
 	std::uniform_real_distribution<FPType> data_dist(-1, 1), beta_dist(0, 0.01), weights_dist(-1, 1), ground_truth_dist(0, 1);
@@ -18,7 +18,6 @@ std::tuple<std::vector<FPType>, std::vector<FPType>, FPType, std::vector<FPType>
 	std::ifstream input(filename, std::ios::binary);
 	bool need_to_create_data = false;
 	if (input.good()) {
-		data.reserve(meta.rows_count * meta.columns_count);
 		input.seekg(0, std::ios::end);
 	    auto fileSize = input.tellg();
 	    input.seekg(0, std::ios::beg);
@@ -26,10 +25,10 @@ std::tuple<std::vector<FPType>, std::vector<FPType>, FPType, std::vector<FPType>
 	    input.close();
 	} else {
 		need_to_create_data = true;
-		data = std::vector<FPType>(meta.rows_count * meta.columns_count);
 	}
 
-	const size_t rows_in_block = meta.l2_cache_size * 0.8 / (meta.columns_count * sizeof(FPType));
+	constexpr size_t num_threads = 5;
+	const size_t rows_in_block = meta.columns_count / num_threads + !!(meta.columns_count % num_threads);
 	const size_t blocks_count = meta.rows_count / rows_in_block + !!(meta.rows_count % rows_in_block);
 	tbb::parallel_for(tbb::blocked_range<int>(0, blocks_count),
 		[&](tbb::blocked_range<int> r) {

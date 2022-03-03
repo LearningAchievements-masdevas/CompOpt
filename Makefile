@@ -1,7 +1,7 @@
 all: build
 
 .PHONY: build
-build: src/logreg.hpp src/logreg.cpp src/data_gen.hpp src/main.cpp src/verbose.cpp src/verbose.hpp src/structures.hpp
+build: src/*
 	icx -I/home/masdevas/oneapi/tbb/latest/include -I/home/masdevas/oneapi/mkl/latest/include -I/home/masdevas/oneapi/advisor/latest/include \
 		-lstdc++ -xCORE-AVX2 \
 		-L/home/masdevas/oneapi/tbb/latest/lib/intel64/gcc4.8 -ltbb \
@@ -11,4 +11,4 @@ build: src/logreg.hpp src/logreg.cpp src/data_gen.hpp src/main.cpp src/verbose.c
 
 .PHONY: clean
 clean: exec data.dat extra.dat
-	rm exec data.dat extra.dat r00*
+	rm -rf exec data.dat extra.dat r00*

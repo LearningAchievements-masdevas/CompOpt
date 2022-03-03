@@ -55,11 +55,9 @@ ForwardResult<FPType> forward(const Meta& meta, const std::vector<FPType>& data,
 	    }
 	}, tbb::static_partitioner());
 
-	// verbose_print(verbosity, "# Forward. Start reduction");
 	for (auto& value : tls) {
 		result.logloss += value;
 	}
-	// verbose_print(verbosity, "# Forward. Finished");
 	return result;
 }
 
@@ -98,14 +96,12 @@ GradientResult<FPType> gradient(const Meta& meta, const std::vector<FPType>& dat
 		}
 	}, tbb::static_partitioner());
 
-	// verbose_print(verbosity, "# Backward. Start reduction");
 	for (auto& [local_grad, local_sigm_logloss_derivatives, local_beta] : tls_local_grad) {
 		for (size_t index = 0; index < meta.columns_count; ++index) {
 			result.weights_gradient[index] += local_grad[index];
 		}
 		result.beta_gradient += local_beta;
 	}
-	// verbose_print(verbosity, "# Backward. Finished");
 	return result;
 }
 
@@ -114,7 +110,7 @@ GradientResult<FPType> gradient(const Meta& meta, const std::vector<FPType>& dat
 namespace logreg_opt {
 
 template <typename FPType>
-std::pair<ForwardResult<FPType>, GradientResult<FPType>> forward_and_gradient(const Meta& meta, const std::vector<FPType> data, const std::vector<FPType>& weights, const std::vector<float>& groundTruth, const FPType beta_weight, const bool verbosity) {
+std::pair<ForwardResult<FPType>, GradientResult<FPType>> forward_and_gradient(const Meta& meta, const std::vector<FPType>& data, const std::vector<FPType>& weights, const std::vector<float>& groundTruth, const FPType beta_weight, const bool verbosity) {
 	ForwardResult<FPType> result_forward(meta.rows_count);
 	GradientResult<FPType> result_gradient(meta.columns_count);
 	const size_t rows_in_block = meta.l2_cache_size * 0.8 / (meta.columns_count * sizeof(FPType));
@@ -122,7 +118,6 @@ std::pair<ForwardResult<FPType>, GradientResult<FPType>> forward_and_gradient(co
 	using TLS = tbb::enumerable_thread_specific<std::tuple<std::vector<FPType>, std::vector<FPType>, FPType, FPType>>;
 	TLS tls(std::make_tuple(std::vector<FPType>(meta.columns_count), std::vector<FPType>(rows_in_block), static_cast<FPType>(0.), static_cast<FPType>(.0)));
 
-	// verbose_print(verbosity, "# Opt parallel section");
 	tbb::parallel_for(tbb::blocked_range<int>(0, blocks_count),
 		[&](tbb::blocked_range<int> r) {
 		typename TLS::reference local_tls = tls.local();
@@ -170,7 +165,6 @@ std::pair<ForwardResult<FPType>, GradientResult<FPType>> forward_and_gradient(co
 	    }
 	}, tbb::static_partitioner());
 
-	// verbose_print(verbosity, "# Opt reduction");
 	for (auto& [local_grad, local_sigm_logloss_derivatives, local_beta, local_logloss] : tls) {
 		for (size_t index = 0; index < meta.columns_count; ++index) {
 			result_gradient.weights_gradient[index] += local_grad[index];
