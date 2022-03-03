@@ -7,10 +7,10 @@
 bool check_verbosity();
 
 template <typename... Args>
-inline void verbose_print(bool verbosity, Args&&... args) {
-	if (verbosity) {
-		(std::cout << ... << args) << std::endl;
-	}
+inline void verbose_print(bool verbosity, Args &&... args) {
+  if (verbosity) {
+    (std::cout << ... << args) << std::endl;
+  }
 }
 
 #endif
